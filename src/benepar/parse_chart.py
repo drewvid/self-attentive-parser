@@ -151,8 +151,11 @@ class ChartParser(nn.Module, parse_base.BaseParser):
         else:
             return next(self.f_label.parameters()).device
 
-    def parallelize(self, *args, **kwargs):
-        self.parallelized_devices = (torch.device("cuda", 0), torch.device("cuda", 1))
+    def parallelize(self, devices=None, *args, **kwargs):
+        if devices is None:
+            self.parallelized_devices = (torch.device("cuda", 0), torch.device("cuda", 1))
+        else:
+            self.parallelized_devices = tuple(torch.device(d) for d in devices)
         for child in self.children():
             if child != self.pretrained_model:
                 child.to(self.output_device)

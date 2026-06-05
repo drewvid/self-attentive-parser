@@ -18,13 +18,9 @@ class PartialConstituentData:
         self.ends = np.hstack(self.ends)
         self.labels = np.hstack(self.labels)
 
-        # TODO(nikita): Python for loops aren't very fast
         loc_to_constituent = np.full(len(doc), -1, dtype=int)
-        prev = None
-        for position in range(self.starts.shape[0]):
-            if self.starts[position] != prev:
-                prev = self.starts[position]
-                loc_to_constituent[self.starts[position]] = position
+        _, unique_indices = np.unique(self.starts, return_index=True)
+        loc_to_constituent[self.starts[unique_indices]] = unique_indices
 
         return ConstituentData(
             self.starts, self.ends, self.labels, loc_to_constituent, label_vocab

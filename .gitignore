@@ -45,3 +45,6 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+# Pytest cache
+.pytest_cache/
+

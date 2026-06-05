@@ -59,22 +59,21 @@ def retokenize(
             if start != end
         ]
     )
-    token_idx, (token_start, token_end) = next(offset_mapping_iter)
     words_from_tokens = [-100] * len(words)
-    for word_idx, (word_start, word_end) in enumerate(
-        zip(word_offset_starts, word_offset_ends)
-    ):
-        while token_end <= word_start:
-            token_idx, (token_start, token_end) = next(offset_mapping_iter)
-        if token_end > word_end:
-            words_from_tokens[word_idx] = token_idx
-        while token_end <= word_end:
-            words_from_tokens[word_idx] = token_idx
-            try:
+    try:
+        token_idx, (token_start, token_end) = next(offset_mapping_iter)
+        for word_idx, (word_start, word_end) in enumerate(
+            zip(word_offset_starts, word_offset_ends)
+        ):
+            while token_end <= word_start:
                 token_idx, (token_start, token_end) = next(offset_mapping_iter)
-            except StopIteration:
-                assert word_idx == len(words) - 1
-                break
+            if token_start < word_end and token_end > word_end:
+                words_from_tokens[word_idx] = token_idx
+            while token_end <= word_end:
+                words_from_tokens[word_idx] = token_idx
+                token_idx, (token_start, token_end) = next(offset_mapping_iter)
+    except StopIteration:
+        pass
     if return_tensors == "np":
         words_from_tokens = np.asarray(words_from_tokens, dtype=int)
     elif return_tensors == "pt":
@@ -110,7 +109,21 @@ class Retokenizer:
             # the feature vectors for CLS and SEP, but pre-trained models differ in the
             # special tokens that they use. This code attempts to find special token
             # positions for each pre-trained model.
-            dummy_ids = self.tokenizer.build_inputs_with_special_tokens([-100])
+            if hasattr(self.tokenizer, "build_inputs_with_special_tokens"):
+                dummy_ids = self.tokenizer.build_inputs_with_special_tokens([-100])
+            else:
+                # Fallback for newer transformers where build_inputs_with_special_tokens is removed from fast tokenizers
+                ids_with_special = self.tokenizer.encode("a", add_special_tokens=True)
+                ids_without_special = self.tokenizer.encode("a", add_special_tokens=False)
+                # Find the location of ids_without_special in ids_with_special
+                prefix = []
+                suffix = []
+                for idx in range(len(ids_with_special) - len(ids_without_special) + 1):
+                    if ids_with_special[idx : idx + len(ids_without_special)] == ids_without_special:
+                        prefix = ids_with_special[:idx]
+                        suffix = ids_with_special[idx + len(ids_without_special) :]
+                        break
+                dummy_ids = prefix + [-100] + suffix
             if self.is_t5:
                 # For T5 we use the output from the decoder, which accepts inputs that
                 # are shifted relative to the encoder.

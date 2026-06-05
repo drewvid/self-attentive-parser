@@ -2,6 +2,16 @@
 
 A high-accuracy parser with models for 11 languages, implemented in Python. Based on [Constituency Parsing with a Self-Attentive Encoder](https://arxiv.org/abs/1805.01052) from ACL 2018, with additional changes described in [Multilingual Constituency Parsing with Self-Attention and Pre-Training](https://arxiv.org/abs/1812.11760).
 
+## What changed
+This repository includes a major refactor of the Berkeley Neural Parser codebase with a focus on stability, compatibility, and performance. Key improvements include:
+- safer retokenization for whitespace-only tokens and newer Hugging Face tokenizer APIs,
+- faster spaCy integration via vectorized constituent mapping,
+- more robust hyperparameter handling in `HParams`,
+- configurable multi-GPU parallelization for parser chart decoding,
+- and a tests directory.
+
+See `docs/legacy_comparison.md` and `docs/refactoring_and_performance.md` for details.
+
 **New February 2021:** Version 0.2.0 of the Berkeley Neural Parser is now out, with higher-quality pre-trained models for all languages. Inference now uses PyTorch instead of TensorFlow (training has always been PyTorch-only). Drops support for Python 2.7 and 3.5. Includes updated support for training and using your own parsers, based on your choice of [pre-trained model](https://huggingface.co/models).
 
 ## Contents
@@ -116,7 +126,7 @@ Some parser models also allow Unicode text input for debugging/interactive use, 
 ```python
 >>> parser.parse('"Fly safely."')  # For debugging/interactive use only.
 ```
-When parsing from raw text, we recommend using spaCy and `benepar.BeneparComponent` instead. The reason is that parser models do not ship with a tokenizer or sentence splitter, and some models may not include a part-of-speech tagger either. A toolkit must be used to fill in these pipeline components, and spaCy outperforms NLTK in all of these areas (sometimes by a large margin). 
+When parsing from raw text, we recommend using spaCy and `benepar.BeneparComponent` instead. The reason is that parser models do not ship with a tokenizer or sentence splitter, and some models may not include a part-of-speech tagger either. A toolkit must be used to fill in these pipeline components, and spaCy outperforms NLTK in all of these areas (sometimes by a large margin).
 
 
 
