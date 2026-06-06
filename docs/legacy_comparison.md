@@ -1,6 +1,6 @@
 # Differences: Legacy vs. Refactored Source Code
 
-This document outlines the specific code changes introduced to refactor, stabilize, and optimize the Berkeley Neural Parser (`benepar`) codebase compared to the legacy codebase located in `install-legacy/self-attentive-parser-legacy`.
+This document outlines the specific code changes introduced to refactor, stabilize, and optimize the Berkeley Neural Parser (`benepar`) codebase compared to the legacy codebase.
 
 The differences span four key files: `retokenization.py`, `spacy_plugin.py`, `nkutil.py`, and `parse_chart.py`.
 
