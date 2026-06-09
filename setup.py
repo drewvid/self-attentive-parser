@@ -36,7 +36,7 @@ setuptools.setup(
         "tokenizers>=0.22.2",
         "transformers[torch,tokenizers]>=5.10.2",
         "protobuf>=7.35.0",
-        "tiktoken",
+        "sentencepiece",
         "dataclasses;python_version<'3.7'",
     ],
 )
