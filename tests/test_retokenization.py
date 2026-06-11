@@ -2,9 +2,12 @@ import os
 import pytest
 import torch
 import transformers
+import benepar
 from benepar.retokenization import retokenize, Retokenizer
 
 MODEL_PATH = os.path.expanduser("~/nltk_data/models/benepar_en3")
+if not os.path.exists(MODEL_PATH):
+    benepar.download('benepar_en3')
 
 def test_retokenize_func():
     tokenizer = transformers.AutoTokenizer.from_pretrained(MODEL_PATH, fast=True)

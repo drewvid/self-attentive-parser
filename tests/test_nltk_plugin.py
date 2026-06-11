@@ -1,9 +1,12 @@
 import os
 import pytest
 import nltk
+import benepar
 from benepar import Parser, InputSentence
 
 MODEL_PATH = os.path.expanduser("~/nltk_data/models/benepar_en3")
+if not os.path.exists(MODEL_PATH):
+    benepar.download('benepar_en3')
 
 def test_input_sentence():
     # Test simple word-based initialization

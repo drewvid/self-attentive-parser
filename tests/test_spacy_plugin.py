@@ -1,9 +1,12 @@
 import os
 import pytest
 import spacy
+import benepar
 from benepar.integrations.spacy_plugin import BeneparComponent, NonConstituentException
 
 MODEL_PATH = os.path.expanduser("~/nltk_data/models/benepar_en3")
+if not os.path.exists(MODEL_PATH):
+    benepar.download('benepar_en3')
 
 def test_spacy_integration():
     nlp = spacy.load("en_core_web_sm")

@@ -1,9 +1,12 @@
 import os
 import pytest
 import torch
+import benepar
 from benepar.parse_chart import ChartParser
 
 MODEL_PATH = os.path.expanduser("~/nltk_data/models/benepar_en3")
+if not os.path.exists(MODEL_PATH):
+    benepar.download('benepar_en3')
 
 class DummyExample:
     def __init__(self, words, space_after):
