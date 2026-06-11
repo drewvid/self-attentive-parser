@@ -14,7 +14,7 @@ This resulted in two failure modes:
 2. An `AssertionError: assert word_idx == len(words) - 1` when the iterator exhausted early on intermediate whitespace tokens.
 
 ### The Solution
-We updated [retokenization.py](file:///home/netuser/ReposRTD/benepar-refactored/install/self-attentive-parser/src/benepar/retokenization.py) to:
+We updated [retokenization.py](../src/benepar/retokenization.py) to:
 - Wrap the token-to-word mapping loop in a `try ... except StopIteration` block, allowing the mapping loop to finish gracefully when the subword tokenizer finishes. Any trailing whitespace tokens safely remain mapped to the padding index (`-100`).
 - Improve the overlap check from `if token_end > word_end:` to `if token_start < word_end and token_end > word_end:`. This prevents whitespace-only tokens from being incorrectly mapped to subsequent word tokens.
 
@@ -23,7 +23,7 @@ We updated [retokenization.py](file:///home/netuser/ReposRTD/benepar-refactored/
 ## 2. Vectorized spaCy Integration (4.1x Performance Speedup)
 
 ### The Problem
-During the document finalization step inside the spaCy plugin ([spacy_plugin.py](file:///home/netuser/ReposRTD/benepar-refactored/install/self-attentive-parser/src/benepar/integrations/spacy_plugin.py)), the constituent data alignment loop was implemented using a standard Python `for` loop:
+During the document finalization step inside the spaCy plugin ([spacy_plugin.py](../src/benepar/integrations/spacy_plugin.py)), the constituent data alignment loop was implemented using a standard Python `for` loop:
 ```python
 loc_to_constituent = np.full(len(doc), -1, dtype=int)
 prev = None
@@ -48,7 +48,7 @@ This performs the search and assignment in compiled C code, yielding a **~4.1x s
 ## 3. Hyperparameter Configuration (`HParams`) Refactoring
 
 ### The Problem
-The original `HParams` class in [nkutil.py](file:///home/netuser/ReposRTD/benepar-refactored/install/self-attentive-parser/src/benepar/nkutil.py) stored hyperparameters as object attributes and queried them using `dir(self)` filtered by a hardcoded `_skip_keys` list. This is brittle because adding class methods or properties to the class (or its subclasses) would leak them into argument lists, serialization dictionaries, or prints.
+The original `HParams` class in [nkutil.py](../src/benepar/nkutil.py) stored hyperparameters as object attributes and queried them using `dir(self)` filtered by a hardcoded `_skip_keys` list. This is brittle because adding class methods or properties to the class (or its subclasses) would leak them into argument lists, serialization dictionaries, or prints.
 
 ### The Solution
 We refactored `HParams` to use an internal dictionary `self._hparams`. The `__getattr__`, `__setattr__`, `__getitem__`, and `__setitem__` methods were overloaded to delegate to `self._hparams`.
@@ -82,7 +82,7 @@ def parallelize(self, devices=None, *args, **kwargs):
 ### Automated Test Suite
 Run the test suite inside the virtual environment:
 ```bash
-/home/netuser/.virtualenvs/benepar-refactored/bin/pytest -v install/self-attentive-parser/tests/
+pytest -v tests/
 ```
 This runs all 14 tests, including:
 * Retokenization whitespace alignment tests.
@@ -91,6 +91,6 @@ This runs all 14 tests, including:
 ### Manual Pipeline Run
 Run the manual test script:
 ```bash
-/home/netuser/.virtualenvs/benepar-refactored/bin/python3 test.py
+python3 test.py
 ```
 This loads the spaCy model, enables the `benepar` component, and outputs the parse tree, confirming that the pipeline runs correctly.
